@@ -12,6 +12,7 @@ public class MakingDeposits
         var account = new Account();
         var openingBalance = account.GetBalance();
         var amountToDeposit = 100M;
+        account.Status = AccountStatus.Standard;
         // When
         account.Deposit(amountToDeposit);
         // Then

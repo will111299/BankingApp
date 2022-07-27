@@ -1,8 +1,12 @@
 ﻿namespace Banking.Domain;
 
+public enum AccountStatus { Standard, Gold };
+
 public class Account
 {
     private decimal _balance = 5000M;
+
+    public AccountStatus Status { get; set; } = AccountStatus.Standard;
     public decimal GetBalance()
     {
         return _balance;
@@ -10,7 +14,8 @@ public class Account
 
     public void Deposit(decimal amountToDeposit)
     {
-       _balance += amountToDeposit;
+        decimal bonus = this.Status == AccountStatus.Gold ? amountToDeposit * .10M : 0;
+        _balance += amountToDeposit + bonus;
     }
 
     public void Withdraw(decimal amountToWithdraw)
