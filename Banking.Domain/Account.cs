@@ -1,12 +1,17 @@
 ﻿namespace Banking.Domain;
 
-public enum AccountStatus { Standard, Gold };
-
 public class Account
 {
     private decimal _balance = 5000M;
+    private ICalculateBonusesForAccounts _bonusCalculator;
+    private INotifyTheFed _fedNotifier;
 
-    public AccountStatus Status { get; set; } = AccountStatus.Standard;
+    public Account(ICalculateBonusesForAccounts bonusCalculator, INotifyTheFed fedNotifier)
+    {
+        _bonusCalculator = bonusCalculator;
+        _fedNotifier = fedNotifier;
+    }
+
     public decimal GetBalance()
     {
         return _balance;
@@ -14,12 +19,15 @@ public class Account
 
     public void Deposit(decimal amountToDeposit)
     {
-        decimal bonus = this.Status == AccountStatus.Gold ? amountToDeposit * .10M : 0;
+        GuardAgainstNegativeNumbers(amountToDeposit);
+        // WTCYWYH
+    decimal bonus = _bonusCalculator.AccountDepositOf(_balance, amountToDeposit);
         _balance += amountToDeposit + bonus;
     }
 
     public void Withdraw(decimal amountToWithdraw)
     {
+        GuardAgainstNegativeNumbers(amountToWithdraw);
         if (amountToWithdraw > _balance)
         {
 
@@ -27,8 +35,16 @@ public class Account
         }
         else
         {
+            // Write the Code i wish I had
+            _fedNotifier.NotifyOfWithdrawal(this, amountToWithdraw);
+           
             _balance -= amountToWithdraw;
         }
+    }
+
+    private void GuardAgainstNegativeNumbers(decimal amount)
+    {
+        if (amount < 0) throw new NegativeValuesNotAllowedException();
     }
 }
 
